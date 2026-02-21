@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import { motion } from "motion/react";
 
 export interface Testimonial {
   text: string;
@@ -9,46 +8,74 @@ export interface Testimonial {
   role: string;
 }
 
-export const TestimonialsColumn = (props: {
-  className?: string;
+/* ─── Minimal Testimonial Card ─── */
+export const TestimonialCard = ({ text, name, role }: Testimonial) => {
+  const initials = name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+
+  return (
+    <div className="relative flex-shrink-0 w-[280px] md:w-[360px] p-5 md:p-7 rounded-2xl border border-zinc-100 bg-white group transition-all duration-300 hover:border-zinc-200 hover:shadow-sm">
+      {/* Decorative quote mark */}
+      <span
+        className="absolute top-4 right-5 text-[64px] leading-none font-serif text-zinc-100 select-none pointer-events-none transition-colors duration-300 group-hover:text-zinc-200"
+        aria-hidden="true"
+      >
+        &ldquo;
+      </span>
+
+      {/* Testimonial text */}
+      <p className="relative text-[15px] text-zinc-600 leading-[1.7] mb-5 line-clamp-4">
+        {text}
+      </p>
+
+      {/* Author */}
+      <div className="relative flex items-center gap-3">
+        <div className="flex items-center justify-center h-9 w-9 rounded-full bg-zinc-100 text-zinc-500 text-xs font-semibold shrink-0 transition-colors duration-300 group-hover:bg-zinc-900 group-hover:text-white">
+          {initials}
+        </div>
+        <div className="flex flex-col">
+          <span className="text-sm font-medium text-zinc-900 leading-tight">
+            {name}
+          </span>
+          <span className="text-xs text-zinc-400 leading-tight">{role}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ─── Horizontal Marquee Row ─── */
+export const MarqueeRow = ({
+  testimonials,
+  reverse = false,
+  duration = 40,
+}: {
   testimonials: Testimonial[];
+  reverse?: boolean;
   duration?: number;
 }) => {
+  // Double the testimonials for seamless infinite loop
+  const doubled = [...testimonials, ...testimonials];
+
   return (
-    <div className={props.className}>
-      <motion.div
-        animate={{
-          translateY: "-50%",
-        }}
-        transition={{
-          duration: props.duration || 10,
-          repeat: Infinity,
-          ease: "linear",
-          repeatType: "loop",
-        }}
-        className="flex flex-col gap-6 pb-6 bg-transparent"
+    <div className="relative w-full overflow-hidden group/marquee">
+      {/* Left gradient mask */}
+      <div className="absolute left-0 top-0 bottom-0 w-8 md:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+      {/* Right gradient mask */}
+      <div className="absolute right-0 top-0 bottom-0 w-8 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+
+      <div
+        className={`flex gap-4 md:gap-5 w-max ${reverse ? "animate-marquee-reverse" : "animate-marquee"}`}
+        style={{ "--marquee-duration": `${duration}s` } as React.CSSProperties}
       >
-        {[
-          ...new Array(2).fill(0).map((_, index) => (
-            <React.Fragment key={index}>
-              {props.testimonials.map(({ text, image, name, role }, i) => (
-                <div className="p-10 rounded-3xl border border-zinc-200 bg-white shadow-lg shadow-zinc-200/50 max-w-xs w-full" key={i}>
-                  <div className="text-zinc-700 leading-relaxed italic">"{text}"</div>
-                  <div className="flex items-center gap-3 mt-6">
-                    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-blue-50 text-blue-600 font-bold border-2 border-blue-100 shrink-0">
-                      {name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
-                    </div>
-                    <div className="flex flex-col">
-                      <div className="font-semibold tracking-tight leading-5 text-zinc-900">{name}</div>
-                      <div className="text-sm leading-5 text-zinc-500 tracking-tight">{role}</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </React.Fragment>
-          )),
-        ]}
-      </motion.div>
+        {doubled.map((testimonial, i) => (
+          <TestimonialCard key={`${testimonial.name}-${i}`} {...testimonial} />
+        ))}
+      </div>
     </div>
   );
 };
