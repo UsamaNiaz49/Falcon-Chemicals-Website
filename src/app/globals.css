@@ -28,6 +28,7 @@
       background-position: 350% 50%, 350% 50%;
     }
   }
+
 }
 
 @media (prefers-color-scheme: dark) {
@@ -41,6 +42,32 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ─── Marquee Animation ─── */
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@layer utilities {
+  .animate-marquee {
+    animation: marquee-scroll var(--marquee-duration, 40s) linear infinite;
+  }
+
+  .animate-marquee-reverse {
+    animation: marquee-scroll var(--marquee-duration, 40s) linear infinite reverse;
+  }
+
+  .group\/marquee:hover .animate-marquee,
+  .group\/marquee:hover .animate-marquee-reverse {
+    animation-play-state: paused;
+  }
 }
 
 /*

@@ -57,6 +57,14 @@ export function GallerySection() {
         }
     };
 
+    // Pair images into rows of 2 for the asymmetric grid
+    const rows: { left: (typeof galleryImages)[number]; right: (typeof galleryImages)[number] }[] = [];
+    for (let i = 0; i < galleryImages.length; i += 2) {
+        if (i + 1 < galleryImages.length) {
+            rows.push({ left: galleryImages[i], right: galleryImages[i + 1] });
+        }
+    }
+
     return (
         <section id="gallery" className="relative bg-white overflow-hidden">
             {/* Background texture */}
@@ -72,7 +80,7 @@ export function GallerySection() {
             <div className="absolute top-1/4 left-0 w-[500px] h-[500px] rounded-full bg-blue-100/50 blur-[140px] pointer-events-none" />
             <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] rounded-full bg-indigo-100/40 blur-[120px] pointer-events-none" />
 
-            <div className="relative z-20 mx-auto max-w-[90%] md:max-w-7xl px-4 md:px-6 pt-16 md:pt-24 pb-8 md:pb-12">
+            <div className="relative z-20 mx-auto max-w-7xl px-6 md:px-10 pt-16 md:pt-24 pb-8 md:pb-16">
                 {/* ─── Section Header ─── */}
                 <div className="mb-12 md:mb-20 space-y-6 text-center">
                     <motion.div
@@ -114,52 +122,111 @@ export function GallerySection() {
                     </motion.p>
                 </div>
 
-                {/* ─── Gallery ─── */}
-                <motion.div
-                    variants={fadeUp}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, amount: 0.15 }}
-                    custom={3}
-                    className="flex flex-col md:flex-row w-full gap-4 md:gap-2 h-auto md:h-[500px] rounded-2xl overflow-hidden border-none md:border md:border-zinc-200 bg-transparent md:bg-zinc-50 p-0 md:p-2 shadow-none md:shadow-sm"
-                >
+                {/* ─── Desktop: Asymmetric 2-Column Grid ─── */}
+                <div className="hidden md:flex flex-col gap-4">
+                    {rows.map((row, rowIdx) => {
+                        const isOdd = rowIdx % 2 !== 0;
+                        return (
+                            <motion.div
+                                key={rowIdx}
+                                initial={{ opacity: 0, y: 40 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true, amount: 0.15 }}
+                                transition={{ duration: 0.7, delay: rowIdx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                                className={cn(
+                                    "grid gap-4",
+                                    isOdd ? "grid-cols-[2fr_3fr]" : "grid-cols-[3fr_2fr]"
+                                )}
+                            >
+                                {/* Left image */}
+                                <div className="relative group overflow-hidden rounded-2xl cursor-pointer">
+                                    <div className={cn(
+                                        "relative w-full overflow-hidden rounded-2xl",
+                                        isOdd ? "h-[340px]" : "h-[400px]"
+                                    )}>
+                                        <Image
+                                            className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                                            src={row.left.src}
+                                            alt={row.left.alt}
+                                            fill
+                                            sizes="(max-width: 1200px) 60vw, 50vw"
+                                        />
+                                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/5 transition-all duration-500" />
+                                    </div>
+                                    {/* Always-visible label */}
+                                    <div className="absolute bottom-0 inset-x-0 p-5">
+                                        <div className="inline-flex px-3.5 py-2 rounded-lg bg-white/90 backdrop-blur-md border border-zinc-200/80 shadow-sm">
+                                            <span className="text-[13px] font-medium text-zinc-800">
+                                                {row.left.alt}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Right image */}
+                                <div className="relative group overflow-hidden rounded-2xl cursor-pointer">
+                                    <div className={cn(
+                                        "relative w-full overflow-hidden rounded-2xl",
+                                        isOdd ? "h-[340px]" : "h-[400px]"
+                                    )}>
+                                        <Image
+                                            className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                                            src={row.right.src}
+                                            alt={row.right.alt}
+                                            fill
+                                            sizes="(max-width: 1200px) 40vw, 35vw"
+                                        />
+                                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/5 transition-all duration-500" />
+                                    </div>
+                                    {/* Always-visible label */}
+                                    <div className="absolute bottom-0 inset-x-0 p-5">
+                                        <div className="inline-flex px-3.5 py-2 rounded-lg bg-white/90 backdrop-blur-md border border-zinc-200/80 shadow-sm">
+                                            <span className="text-[13px] font-medium text-zinc-800">
+                                                {row.right.alt}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        );
+                    })}
+                </div>
+
+                {/* ─── Mobile: Single Column Stack ─── */}
+                <div className="flex flex-col gap-4 md:hidden">
                     {galleryImages.map((img, idx) => (
-                        <div
+                        <motion.div
                             key={idx}
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, amount: 0.15 }}
+                            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                             className={cn(
-                                "relative group overflow-hidden rounded-xl",
-                                "transition-[flex] duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]",
-                                // Mobile styles
-                                "w-full h-[300px]",
-                                idx >= mobileVisibleCount ? "hidden md:block" : "block",
-                                // Desktop styles
-                                "md:h-full md:w-auto",
-                                "md:flex-[1] md:hover:flex-[4]",
-                                "md:min-h-auto"
+                                "relative group overflow-hidden rounded-2xl",
+                                idx >= mobileVisibleCount ? "hidden" : "block"
                             )}
                         >
-                            <Image
-                                className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                                src={img.src}
-                                alt={img.alt}
-                                fill
-                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
-                            />
-
-                            {/* Dark overlay — lighter on hover */}
-                            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-all duration-500" />
-
-                            {/* Bottom label — visible on hover */}
-                            <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]">
-                                <div className="px-3 py-2 rounded-lg bg-white/90 backdrop-blur-md border border-zinc-200 shadow-md">
+                            <div className="relative w-full h-[260px] overflow-hidden rounded-2xl">
+                                <Image
+                                    className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                                    src={img.src}
+                                    alt={img.alt}
+                                    fill
+                                    sizes="100vw"
+                                />
+                                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/5 transition-all duration-500" />
+                            </div>
+                            {/* Always-visible label */}
+                            <div className="absolute bottom-0 inset-x-0 p-4">
+                                <div className="inline-flex px-3 py-1.5 rounded-lg bg-white/90 backdrop-blur-md border border-zinc-200/80 shadow-sm">
                                     <span className="text-[12px] font-medium text-zinc-800">
                                         {img.alt}
                                     </span>
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
-                </motion.div>
+                </div>
 
                 {/* Mobile Show More Button */}
                 <div className="mt-8 flex justify-center md:hidden">
