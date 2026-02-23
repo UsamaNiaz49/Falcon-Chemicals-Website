@@ -1,8 +1,9 @@
 "use client";
 // Force re-index for framer-motion resolution
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { WordBlurReveal } from "@/components/ui/word-blur-reveal";
 import {
     CloudRain,
     Bug,
@@ -16,6 +17,7 @@ import {
     Sun,
 } from "lucide-react";
 import Image from "next/image";
+import { ServicePathLine } from "@/components/ui/service-path-line";
 
 /* ─── Unit conversion to sq ft (base) ─── */
 const UNIT_TO_SQFT: Record<string, number> = {
@@ -192,7 +194,7 @@ function QuotationModal({
                 <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-zinc-200 to-transparent" />
 
                 {/* Subtle corner glow */}
-                <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-blue-100/50 blur-[80px] pointer-events-none" />
+                <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-teal-100/50 blur-[80px] pointer-events-none" />
 
                 {/* ─── Header ─── */}
                 <div className="relative flex items-start justify-between p-5 md:p-6 pb-0">
@@ -353,7 +355,7 @@ function QuotationModal({
                         className={cn(
                             "group flex items-center justify-center gap-2 w-full py-3.5 rounded-xl text-[14px] font-semibold transition-all duration-300",
                             (service.pricingModel === "sqft" && numericArea > 0) || service.pricingModel !== "sqft"
-                                ? "bg-zinc-900 text-white hover:bg-zinc-800 shadow-md hover:shadow-lg"
+                                ? "bg-teal-700 text-white hover:bg-teal-600 shadow-md hover:shadow-lg"
                                 : "bg-zinc-100 text-zinc-300 pointer-events-none"
                         )}
                     >
@@ -371,12 +373,13 @@ function QuotationModal({
    ════════════════════════════════════════════════ */
 export function ServicesSection() {
     const [selectedService, setSelectedService] = useState<Service | null>(null);
+    const containerRef = useRef<HTMLElement>(null);
 
     const handleClose = useCallback(() => setSelectedService(null), []);
 
     return (
         <>
-            <section id="services" className="relative bg-zinc-50 overflow-hidden py-24 md:py-32">
+            <section id="services" ref={containerRef} className="relative bg-teal-50 overflow-hidden py-24 md:py-32">
                 {/* SVG Definition for Squircle Clip Path - The "Superellipse" */}
                 {/* m = 4 (Hyperellipse/Squircle standard for UI) */}
                 <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
@@ -396,7 +399,7 @@ export function ServicesSection() {
                 <div
                     className="absolute inset-0 opacity-[0.3]"
                     style={{
-                        backgroundImage: `linear-gradient(#e4e4e7 1px, transparent 1px), linear-gradient(90deg, #e4e4e7 1px, transparent 1px)`,
+                        backgroundImage: `linear-gradient(#c8e6e6 1px, transparent 1px), linear-gradient(90deg, #c8e6e6 1px, transparent 1px)`,
                         backgroundSize: "64px 64px",
                         maskImage: "radial-gradient(ellipse at center, black 40%, transparent 80%)"
                     }}
@@ -413,11 +416,11 @@ export function ServicesSection() {
                             custom={0}
                             className="flex items-center justify-center gap-3"
                         >
-                            <div className="h-px w-8 bg-gradient-to-r from-transparent to-blue-600/60" />
-                            <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-zinc-500">
+                            <div className="h-px w-8 bg-gradient-to-r from-transparent to-teal-600/60" />
+                            <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-teal-800">
                                 Our Expertise
                             </span>
-                            <div className="h-px w-8 bg-gradient-to-l from-transparent to-indigo-600/60" />
+                            <div className="h-px w-8 bg-gradient-to-l from-transparent to-cyan-600/60" />
                         </motion.div>
 
                         <motion.h2
@@ -429,7 +432,7 @@ export function ServicesSection() {
                             className="text-4xl md:text-5xl lg:text-[3.5rem] font-semibold leading-[1.1] tracking-[-0.02em] text-zinc-900"
                         >
                             Engineered for <br />
-                            <span className="text-zinc-400">Total Protection.</span>
+                            <span className="text-teal-900">Total Protection.</span>
                         </motion.h2>
 
                         <motion.p
@@ -438,7 +441,7 @@ export function ServicesSection() {
                             whileInView="visible"
                             viewport={{ once: true, amount: 0.3 }}
                             custom={2}
-                            className="text-base md:text-[17px] text-zinc-500 leading-[1.75] max-w-xl mx-auto"
+                            className="text-base md:text-[17px] text-zinc-600 leading-[1.75] max-w-xl mx-auto"
                         >
                             We deliver industry-leading waterproofing and insulation solutions,
                             combining advanced chemical science with precision application.
@@ -446,7 +449,8 @@ export function ServicesSection() {
                     </div>
 
                     {/* ─── Services Stack ─── */}
-                    <div className="space-y-16 md:space-y-32">
+                    <div className="relative space-y-16 md:space-y-32">
+                        <ServicePathLine containerRef={containerRef} numServices={services.length} />
                         {services.map((service, i) => {
                             const isOdd = i % 2 !== 0;
                             return (
@@ -465,7 +469,7 @@ export function ServicesSection() {
                                     <div className="flex-1 w-full max-w-xl relative group cursor-pointer" onClick={() => setSelectedService(service)}>
                                         {/* Decorative Shadow/Glow behind the Squircle */}
                                         <div
-                                            className="absolute inset-4 bg-blue-200/40 blur-[40px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                                            className="absolute inset-4 bg-teal-200/40 blur-[40px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"
                                         />
 
                                         <div
@@ -482,8 +486,6 @@ export function ServicesSection() {
                                             />
                                             {/* Inner Highlight Overlay */}
                                             <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/10 opacity-60 pointer-events-none" />
-
-
                                         </div>
                                     </div>
 
@@ -495,9 +497,27 @@ export function ServicesSection() {
                                             <h3 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-900">
                                                 {service.title}
                                             </h3>
-                                            <p className="text-lg text-zinc-500 leading-relaxed max-w-lg mx-auto md:mx-0">
+
+                                            {/* DESKTOP: Smooth Word Reveal - Finishes at 50% so you don't scroll too high */}
+                                            <div className="hidden md:block">
+                                                <WordBlurReveal
+                                                    className="text-lg text-zinc-600 leading-relaxed max-w-lg mx-auto md:mx-0"
+                                                    offset={["start 85%", "start 50%"]}
+                                                >
+                                                    {service.description}
+                                                </WordBlurReveal>
+                                            </div>
+
+                                            {/* MOBILE: Simple performant fade-up to prevent stuttering/lag */}
+                                            <motion.p
+                                                initial={{ opacity: 0, y: 10 }}
+                                                whileInView={{ opacity: 1, y: 0 }}
+                                                viewport={{ once: true, amount: 0.5 }}
+                                                transition={{ duration: 0.5 }}
+                                                className="block md:hidden text-base text-zinc-600 leading-relaxed max-w-lg mx-auto"
+                                            >
                                                 {service.description}
-                                            </p>
+                                            </motion.p>
                                         </div>
 
 
@@ -505,7 +525,7 @@ export function ServicesSection() {
                                         <div className="pt-4">
                                             <button
                                                 onClick={() => setSelectedService(service)}
-                                                className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 bg-zinc-900 text-white rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:bg-zinc-800"
+                                                className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 bg-zinc-900 text-white rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:bg-zinc-700 hover:scale-[1.03] hover:-translate-y-0.5 active:scale-[0.97] hover:ring-2 hover:ring-white hover:ring-offset-2 hover:ring-offset-teal-50"
                                             >
                                                 <span className="relative z-10 text-sm font-semibold tracking-wide">
                                                     Calculate Estimate
@@ -519,17 +539,19 @@ export function ServicesSection() {
                         })}
                     </div>
                 </div>
-            </section>
+            </section >
 
             {/* ─── Quotation Modal ─── */}
             <AnimatePresence>
-                {selectedService && (
-                    <QuotationModal
-                        service={selectedService}
-                        onClose={handleClose}
-                    />
-                )}
-            </AnimatePresence>
+                {
+                    selectedService && (
+                        <QuotationModal
+                            service={selectedService}
+                            onClose={handleClose}
+                        />
+                    )
+                }
+            </AnimatePresence >
         </>
     );
 }
